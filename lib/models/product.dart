@@ -1,28 +1,25 @@
 class Product {
-  int? id;
-  String name;
-  int price;
-  String description;
+  final String id;
+  final String name;
+  final int price;
+  final String description;
 
-  Product({this.id, required this.name, required this.price, required this.description});
+  Product({required this.id, required this.name, required this.price, required this.description});
 
-  // Convert a Product into a Map. The keys must correspond to the column names in the database
-  Map<String, dynamic> toMap() {
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      name: json['name'],
+      price: json['price'],
+      description: json['description'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'price': price,
       'description': description,
     };
-  }
-
-  // Convert a Map into a Product
-  factory Product.fromMap(Map<String, dynamic> map) {
-    return Product(
-      id: map['id'],
-      name: map['name'],
-      price: map['price'],
-      description: map['description'],
-    );
   }
 }
