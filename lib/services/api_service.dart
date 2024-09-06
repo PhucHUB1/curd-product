@@ -64,7 +64,7 @@ class ApiService {
 
     final response = await http.delete(Uri.parse('$apiUrl/$id'));
 
-    if (response.statusCode == 204) {
+    if (response.statusCode == 200) {
       // Xóa thành công
       return;
     } else {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/product.dart';
 import 'product_detail_page.dart';
-import 'edit_product_page.dart'; // Trang sửa sản phẩm
+import 'edit_product_page.dart';
+import 'add_product_page.dart';  // Thêm import cho trang thêm sản phẩm
 
 class ProductListPage extends StatefulWidget {
   @override
@@ -104,6 +105,21 @@ class _ProductListPageState extends State<ProductListPage> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddProductPage()),
+          );
+
+          if (result == true) {
+            _loadProducts(); // Tải lại danh sách sản phẩm sau khi thêm mới
+            setState(() {});
+          }
+        },
+        child: Icon(Icons.add),
+        tooltip: 'Add Product',
       ),
     );
   }
