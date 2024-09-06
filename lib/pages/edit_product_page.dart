@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 
 class EditProductPage extends StatefulWidget {
   final Product product;
+
   EditProductPage({required this.product});
 
   @override
@@ -12,17 +13,41 @@ class EditProductPage extends StatefulWidget {
 
 class _EditProductPageState extends State<EditProductPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _priceController;
-  late TextEditingController _descriptionController;
+  late String _name;
+  late double _price;
+  late String _description;
   final ApiService apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product.name);
-    _priceController = TextEditingController(text: widget.product.price.toString());
-    _descriptionController = TextEditingController(text: widget.product.description);
+    _name = widget.product.name;
+    _price = widget.product.price;
+    _description = widget.product.description;
+  }
+
+  void _updateProduct() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      Product updatedProduct = Product(
+        id: widget.product.id,
+        name: _name,
+        price: _price,
+        description: _description,
+      );
+
+      try {
+        await apiService.updateProduct(widget.product.id, updatedProduct);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Product updated successfully!')),
+        );
+        Navigator.pop(context); // Quay lại trang trước
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update product')),
+        );
+      }
+    }
   }
 
   @override
@@ -32,56 +57,36 @@ class _EditProductPageState extends State<EditProductPage> {
         title: Text('Edit Product'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Product Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter product name';
-                  }
-                  return null;
+                initialValue: _name,
+                decoration: InputDecoration(labelText: 'Name'),
+                onSaved: (value) {
+                  _name = value!;
                 },
               ),
               TextFormField(
-                controller: _priceController,
+                initialValue: _price.toString(),
                 decoration: InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter product price';
-                  }
-                  return null;
+                onSaved: (value) {
+                  _price = double.parse(value!);
                 },
               ),
               TextFormField(
-                controller: _descriptionController,
+                initialValue: _description,
                 decoration: InputDecoration(labelText: 'Description'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter product description';
-                  }
-                  return null;
+                onSaved: (value) {
+                  _description = value!;
                 },
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    Product updatedProduct = Product(
-                      id: widget.product.id,
-                      name: _nameController.text,
-                      price: int.parse(_priceController.text),
-                      description: _descriptionController.text,
-                    );
-                    await apiService.updateProduct(widget.product.id, updatedProduct);
-                    Navigator.pop(context, true); // Trở về và cập nhật danh sách
-                  }
-                },
+                onPressed: _updateProduct,
                 child: Text('Update Product'),
               ),
             ],
